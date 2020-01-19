@@ -31,6 +31,14 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.5"
   },
-  "files": ["lib/**/*"],
-  "keywords": ["sqlite", "thomasio-auth"]
+  "files": [
+    "lib/**/*"
+  ],
+  "keywords": [
+    "sqlite",
+    "thomasio-auth"
+  ],
+  "dependencies": {
+    "thomasio-auth-js-common": "^1.0.1"
+  }
 }
