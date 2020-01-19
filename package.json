@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/thomasio101/thomasio-auth-js-sqlite/issues"
   },
-  "homepage": "https://github.com/thomasio101/thomasio-auth-js-sqlite#readme"
+  "homepage": "https://github.com/thomasio101/thomasio-auth-js-sqlite#readme",
+  "devDependencies": {
+    "typescript": "^3.7.5"
+  }
 }
