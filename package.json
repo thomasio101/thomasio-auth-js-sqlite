@@ -39,6 +39,7 @@
     "thomasio-auth"
   ],
   "dependencies": {
+    "sqlite": "^3.0.3",
     "thomasio-auth-js-common": "^1.0.1"
   }
 }
