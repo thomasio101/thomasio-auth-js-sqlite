@@ -40,6 +40,6 @@
   ],
   "dependencies": {
     "sqlite": "^3.0.3",
-    "thomasio-auth-js-common": "^1.1.0"
+    "thomasio-auth-js-common": "^1.2.0"
   }
 }
