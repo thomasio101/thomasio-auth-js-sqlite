@@ -68,7 +68,7 @@ export class SqliteDatabaseInterface<I, P, T> implements IDatabaseInterface<I> {
 		if (sessionFetcherResult !== null) {
 			session.identity = sessionFetcherResult.identity;
 
-			return this.tokenVerifier(sessionFetcherResult.storedToken, session.token);
+			return await this.tokenVerifier(sessionFetcherResult.storedToken, session.token);
 		} else {
 			return false;
 		}
