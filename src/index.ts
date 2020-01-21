@@ -1,5 +1,5 @@
 import { Database, open } from 'sqlite';
-import { IDatabaseInterface, ISession, Verifier } from 'thomasio-auth-js-common/lib/server';
+import * as common from 'thomasio-auth-js-common/lib/server';
 
 export type UserFetcher<I, P> = (
 	username: string,
@@ -17,37 +17,43 @@ export type SessionFetcher<I, T> = (
 	dbPromise: Promise<Database>,
 ) => Promise<{ storedToken: T; identity: I } | null>;
 
-export type SessionCreator<I> = (identity: I, dbPromise: Promise<Database>) => Promise<ISession<I>>;
+export type SessionCreator<I> = (identity: I, dbPromise: Promise<Database>) => Promise<common.ISession<I>>;
 
-export class SqliteDatabaseInterface<I, P, T> implements IDatabaseInterface<I> {
+export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInterface<E, I> {
 	private dbPromise: Promise<Database>;
 	private userFetcher: UserFetcher<I, P>;
-	private passwordVerifier: Verifier<P>;
+	private passwordVerifier: common.Verifier<P>;
+	private passwordProcessor: common.Processor<P>;
 	private sessionCreator: SessionCreator<I>;
 	private sessionFetcher: SessionFetcher<I, T>;
-	private tokenVerifier: Verifier<T>;
+	private tokenVerifier: common.Verifier<T>;
+	private _userCreator: UserCreator<E, I, P>;
 
 	// TODO: Replace identity in userFetcher with a function which fetches the identity.
 	constructor(
 		dbFileName: string,
 		userFetcher: UserFetcher<I, P>,
-		passwordVerifier: Verifier<P>,
+		passwordVerifier: common.Verifier<P>,
+		passwordProcessor: common.Processor<P>,
 		sessionCreator: SessionCreator<I>,
 		sessionFetcher: SessionFetcher<I, T>,
-		tokenVerifier: Verifier<T>,
+		tokenVerifier: common.Verifier<T>,
+		userCreator: UserCreator<E, I, P>
 	) {
 		this.dbPromise = open(dbFileName);
 		this.userFetcher = userFetcher;
 		this.passwordVerifier = passwordVerifier;
+		this.passwordProcessor = passwordProcessor;
 		this.sessionCreator = sessionCreator;
 		this.sessionFetcher = sessionFetcher;
 		this.tokenVerifier = tokenVerifier;
+		this._userCreator = userCreator;
 	}
 
 	public async userAuthenticator(
 		username: string,
 		password: string,
-	): Promise<{ valid: true; session: ISession<I> } | { valid: false }> {
+	): Promise<{ valid: true; session: common.ISession<I> } | { valid: false }> {
 		const userFetcherResult = await this.userFetcher(username, this.dbPromise);
 
 		if (userFetcherResult !== null) {
@@ -68,7 +74,7 @@ export class SqliteDatabaseInterface<I, P, T> implements IDatabaseInterface<I> {
 		}
 	}
 
-	public async sessionAuthenticator(session: ISession<I>) {
+	public async sessionAuthenticator(session: common.ISession<I>) {
 		const sessionFetcherResult = await this.sessionFetcher(session.id, this.dbPromise);
 
 		if (sessionFetcherResult !== null) {
@@ -78,5 +84,9 @@ export class SqliteDatabaseInterface<I, P, T> implements IDatabaseInterface<I> {
 		} else {
 			return false;
 		}
+	}
+
+	public userCreator(username: string, password: string): Promise<{ success: true; identity: I } | { success: false; error: E }> {
+		return this._userCreator(username, this.passwordProcessor(password), this.dbPromise)
 	}
 }
