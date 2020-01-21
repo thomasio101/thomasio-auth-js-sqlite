@@ -6,6 +6,11 @@ export type UserFetcher<I, P> = (
 	dbPromise: Promise<Database>,
 ) => Promise<{ storedPassword: P; identity: I } | null>;
 
+export type UserCreator<E, I, P> = (
+	username: string,
+	processedPasswordPromise: Promise<P>,
+) => Promise<{ success: true; identity: I } | { success: false; error: E }>;
+
 export type SessionFetcher<I, T> = (
 	id: string,
 	dbPromise: Promise<Database>,
