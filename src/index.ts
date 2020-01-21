@@ -11,7 +11,7 @@ export type SessionFetcher<I, T> = (
 	dbPromise: Promise<Database>,
 ) => Promise<{ storedToken: T; identity: I } | null>;
 
-export type SessionCreator<I> = (identity: I) => Promise<ISession<I>>;
+export type SessionCreator<I> = (identity: I, dbPromise: Promise<Database>) => Promise<ISession<I>>;
 
 export class SqliteDatabaseInterface<I, P, T> implements IDatabaseInterface<I> {
 	private dbPromise: Promise<Database>;
@@ -47,7 +47,7 @@ export class SqliteDatabaseInterface<I, P, T> implements IDatabaseInterface<I> {
 		if (userFetcherResult !== null) {
 			if (await this.passwordVerifier(userFetcherResult.storedPassword, password)) {
 				return {
-					session: await this.sessionCreator(userFetcherResult.identity),
+					session: await this.sessionCreator(userFetcherResult.identity, this.dbPromise),
 					valid: true,
 				};
 			} else {
