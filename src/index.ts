@@ -27,6 +27,7 @@ export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInte
 	private sessionCreator: SessionCreator<I>;
 	private sessionFetcher: SessionFetcher<I, T>;
 	private tokenVerifier: common.Verifier<T>;
+	/* tslint:disable-next-line */
 	private _userCreator: UserCreator<E, I, P>;
 
 	// TODO: Replace identity in userFetcher with a function which fetches the identity.
