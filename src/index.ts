@@ -39,7 +39,7 @@ export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInte
 		sessionCreator: SessionCreator<I>,
 		sessionFetcher: SessionFetcher<I, T>,
 		tokenVerifier: common.Verifier<T>,
-		userCreator: UserCreator<E, I, P>
+		userCreator: UserCreator<E, I, P>,
 	) {
 		this.dbPromise = open(dbFileName);
 		this.userFetcher = userFetcher;
@@ -87,7 +87,10 @@ export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInte
 		}
 	}
 
-	public userCreator(username: string, password: string): Promise<{ success: true; identity: I } | { success: false; error: E }> {
-		return this._userCreator(username, this.passwordProcessor(password), this.dbPromise)
+	public userCreator(
+		username: string,
+		password: string,
+	): Promise<{ success: true; identity: I } | { success: false; error: E }> {
+		return this._userCreator(username, this.passwordProcessor(password), this.dbPromise);
 	}
 }
