@@ -9,6 +9,7 @@ export type UserFetcher<I, P> = (
 export type UserCreator<E, I, P> = (
 	username: string,
 	processedPasswordPromise: Promise<P>,
+	dbPromise: Promise<Database>,
 ) => Promise<{ success: true; identity: I } | { success: false; error: E }>;
 
 export type SessionFetcher<I, T> = (
