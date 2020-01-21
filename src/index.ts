@@ -6,9 +6,10 @@ export type UserFetcher<I, P> = (
 	dbPromise: Promise<Database>,
 ) => Promise<{ storedPassword: P; identity: I } | null>;
 
-export type UserCreator<E, I, P> = (
+export type UserCreator<E, I, P, U> = (
 	username: string,
 	processedPasswordPromise: Promise<P>,
+	userData: U,
 	dbPromise: Promise<Database>,
 ) => Promise<{ success: true; identity: I } | { success: false; error: E }>;
 
@@ -19,7 +20,7 @@ export type SessionFetcher<I, T> = (
 
 export type SessionCreator<I> = (identity: I, dbPromise: Promise<Database>) => Promise<common.ISession<I>>;
 
-export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInterface<E, I> {
+export class SqliteDatabaseInterface<E, I, P, T, U> implements common.IDatabaseInterface<E, I, U> {
 	private dbPromise: Promise<Database>;
 	private userFetcher: UserFetcher<I, P>;
 	private passwordVerifier: common.Verifier<P>;
@@ -28,7 +29,7 @@ export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInte
 	private sessionFetcher: SessionFetcher<I, T>;
 	private tokenVerifier: common.Verifier<T>;
 	/* tslint:disable-next-line */
-	private _userCreator: UserCreator<E, I, P>;
+	private _userCreator: UserCreator<E, I, P, U>;
 
 	// TODO: Replace identity in userFetcher with a function which fetches the identity.
 	constructor(
@@ -39,7 +40,7 @@ export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInte
 		sessionCreator: SessionCreator<I>,
 		sessionFetcher: SessionFetcher<I, T>,
 		tokenVerifier: common.Verifier<T>,
-		userCreator: UserCreator<E, I, P>,
+		userCreator: UserCreator<E, I, P, U>,
 	) {
 		this.dbPromise = open(dbFileName);
 		this.userFetcher = userFetcher;
@@ -90,7 +91,8 @@ export class SqliteDatabaseInterface<E, I, P, T> implements common.IDatabaseInte
 	public userCreator(
 		username: string,
 		password: string,
+		userData: U,
 	): Promise<{ success: true; identity: I } | { success: false; error: E }> {
-		return this._userCreator(username, this.passwordProcessor(password), this.dbPromise);
+		return this._userCreator(username, this.passwordProcessor(password), userData, this.dbPromise);
 	}
 }
